@@ -1,0 +1,5 @@
+---
+
+data_mount_root: "/appdata"
+log_mount_root: "/data01/logs/bigplanet"
+sw_mount_root: "/data01/sw/bigplanet"

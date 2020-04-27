@@ -1,0 +1,19 @@
+---
+
+- name: remove data directory - '{{ data_mount_root }}'
+  become: true
+  file: 
+    path: '{{ data_mount_root }}'
+    state: absent
+
+- name: remove log directory - '{{ log_mount_root }}'
+  become: true
+  file: 
+    path: '{{ log_mount_root }}'
+    state: absent
+
+- name: remove log directory - '{{ sw_mount_root }}'
+  become: true
+  file: 
+    path: '{{ sw_mount_root }}'
+    state: absent

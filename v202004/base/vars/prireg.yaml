@@ -1,0 +1,13 @@
+---
+
+prireg_service_name: "{{ group_prefix }}-registry"
+prireg_publish_5000: 5000
+prireg_mount_root: "{{ data_mount_root }}/registry"
+prireg_image: "prireg:5000/registry:2"
+prireg_image_src: "./files/docker-preload-images"
+prireg_load_images: []
+prireg_image_dest: "/home/{{ ansible_ssh_user }}/inst_imgs/prireg"
+prireg_alpine_tag: "prireg:5000/alpine-openjdk8:1.8.0_191"
+docker_builds_path: "install/docker-builds"
+docker_builds_alpine: ['alpine-openjdk-8', 'alpine-s6-overlay', 'alpine-s6-node8', 'alpine-s6-openjdk8-jre']
+docker_builds_products: ['prireg:5000/zookeeper:3.5.6-v01', 'prireg:5000/kafka:2.12-2.4.0-v01', 'prireg:5000/ignite:2.8.0-v01', 'prireg:5000/elasticsearch:6.5.4', 'prireg:5000/kibana:6.5.4']

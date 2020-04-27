@@ -1,0 +1,78 @@
+---
+  - name: Setup the repository
+    become: true
+    yum:
+      name: "{{ packages }}"
+      state: present
+    vars:
+      packages:
+      - yum-utils
+      - device-mapper-persistent-data
+      - lvm2
+
+  - name: Setup the stable repo
+    become: true
+    shell: yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+  - name: install containerd.io-{{ containerd_io_version }}
+    become: true
+    yum:
+      name: containerd.io-{{ containerd_io_version }}
+      allow_downgrade: yes
+      state: present
+
+  - name: install docker-ce-cli-{{ docker_engine_version }}
+    become: true
+    yum:
+      name: docker-ce-cli-{{ docker_engine_version }}
+      allow_downgrade: yes
+      state: present
+
+  - name: install docker-ce-{{ docker_engine_version }}
+    become: true
+    yum:
+      name: docker-ce-{{ docker_engine_version }}
+      allow_downgrade: yes
+      state: present
+
+  - name: add a user({{ ansible_ssh_user }}) to the docker group
+    become: true
+    user:
+      name: '{{ ansible_ssh_user }}'
+      groups: docker
+      append: yes
+
+  - name: create /etc/systemd/system/docker.service.d directory
+    become: true
+    file:
+      path: /etc/systemd/system/docker.service.d
+      state: directory
+
+  - name: copy docker.conf to /etc/systemd/system/docker.service.d
+    become: true
+    copy:
+      src: ./files/docker.conf
+      dest: /etc/systemd/system/docker.service.d/docker.conf
+      backup: yes
+
+  - name: configure docker
+    become: true
+    replace:
+      path: /etc/systemd/system/docker.service.d/docker.conf
+      regexp: "{{ item.0 }}"
+      replace: "{{ item.1 }}"
+    with_together:
+      - [ '%docker_root_dir%', '%protocol%', '%port%' ]
+      - [ "{{ docker_root_dir }}", "{{ docker_remote_port.protocol }}", "{{ docker_remote_port.port }}" ]
+
+  - name: reload systemd and restart docker
+    become: true
+    shell: systemctl {{ item }}
+    with_items:
+      - daemon-reload
+      - enable docker
+      - restart docker
+
+  - name: wait for docker service up
+    wait_for: host={{ ansible_host }} port={{ docker_remote_port.port }} state=started delay=5 timeout=300
+    any_errors_fatal: true

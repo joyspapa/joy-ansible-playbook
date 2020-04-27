@@ -1,0 +1,61 @@
+---
+
+- name: Update installed packages
+  become: true
+  yum:
+    name: '*'
+    state: latest
+    update_cache: yes
+
+- name: Install base packages, "{{ base_packages | join(', ') }}"
+  become: true
+  yum:
+    name: "{{ base_packages }}"
+    state: present
+
+- name: Install extra packages, "{{ extra_packages | join(', ') }}"
+  become: true
+  yum:
+    name: "{{ extra_packages }}"
+    state: present
+
+- name: get the rpm package facts
+  package_facts:
+    manager: "auto"
+
+# Uptodate pip
+- name: update pip
+  become: true
+  shell: pip install --upgrade pip
+  when: "ansible_facts.packages['python2-pip'] is defined"
+
+# Install docker-py
+- name: Install docker-py
+  become: true
+  pip:
+    name: docker-py
+    version: 1.10.6
+    state: present
+  when: "ansible_facts.packages['python2-pip'] is defined"
+
+# for ansible expect module
+- name: Install pexpect
+  become: true
+  pip:
+    name: pexpect
+    state: present
+  when: "ansible_facts.packages['python2-pip'] is defined"
+
+# Install monitor tools
+- name: Install monitor tools, "{{ monitor_tools | join(', ') }}"
+  become: true
+  yum:
+     name: "{{ monitor_tools }}"
+     state: present
+
+# Install misc tools
+- name: Install miscellaneous tools,"{{ misc_tools | join(', ') }}"
+  become: true
+  yum:
+     name: "{{ misc_tools }}"
+     state: present

@@ -1,0 +1,12 @@
+---
+
+- name: add user limit entries in /etc/security/limits.conf
+  become: true
+  lineinfile:
+    dest: /etc/security/limits.conf
+    insertbefore: '# End of file'
+    regexp: "{{ item.user + '    ' + item.type + '    ' + item.resource + '    ' + item.value }}"
+    line: "{{ item.user + '    ' + item.type + '    ' + item.resource + '    ' + item.value }}"
+    state: present
+  with_items:
+    - "{{ ulimits_entries }}"

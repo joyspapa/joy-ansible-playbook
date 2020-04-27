@@ -1,0 +1,25 @@
+
+###################### Local vagrant vms ###################
+
+[nodes]
+cmpn-rt-prod-sense01 ansible_host=172.17.9.101
+cmpn-rt-prod-sense02 ansible_host=172.17.9.102
+cmpn-rt-prod-sense03 ansible_host=172.17.9.103
+
+# docker repository server should be one node.
+[prireg]
+cmpn-rt-prod-sense01
+
+[nodes:children]
+prireg
+
+[nodes:vars]
+ansible_ssh_user=ecube
+ansible_ssh_group=scom
+ansible_ssh_private_key_file=~/.ssh/id_rsa
+#ansible_sudo_pass=obzcom1!
+public_interface=ansible_eth1
+group_prefix='prod'
+
+###################### Local vagrant vms ###################
+

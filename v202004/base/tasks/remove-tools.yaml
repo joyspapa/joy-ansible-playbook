@@ -1,0 +1,45 @@
+---
+
+- name: get the rpm package facts
+  package_facts:
+    manager: "auto"
+
+# Remove docker-py
+- name: install docker-py
+  become: true
+  pip:
+    name: docker-py
+    version: 1.10.6
+    state: absent
+  when: "'python-pip' in ansible_facts.packages"
+
+# for ansible expect module
+- name: install pexpect
+  become: true
+  pip:
+    name: pexpect
+    state: absent
+  when: "'python-pip' in ansible_facts.packages"
+
+# Remove monitor tools
+- name: install monitor tools
+  become: true
+  yum:
+     name: "{{ monitor_tools }}"
+     state: removed
+     #     autoremove: yes
+
+# Remove misc tools
+- name: install Miscellaneous tools
+  become: true
+  yum:
+     name: "{{ misc_tools }}"
+     state: removed
+     #autoremove: yes
+
+- name: Remove base packages
+  become: true
+  yum:
+    name: "{{ base_packages }}"
+    state: removed
+    #autoremove: yes

@@ -1,0 +1,44 @@
+---
+
+  - name: ensure {{ prireg_image_dest }}
+    file:
+      path: '{{ prireg_image_dest }}'
+      state: directory
+
+  - name: retrive preload docker image files
+    set_fact:
+      prireg_load_images: "{{ prireg_load_images }} + [ '{{ item | basename }}' ]"
+    with_fileglob:
+      - "{{ prireg_image_src }}/*.tar"
+
+  - name: copy image file
+    copy:
+      src: '{{ prireg_image_src }}/{{ item }}'
+      dest: '{{ prireg_image_dest }}'
+    with_items:    
+      - '{{ prireg_load_images }}'
+
+  - name: load image
+    shell: docker load < {{ prireg_image_dest }}/{{ item }}
+    with_items:
+      - '{{ prireg_load_images }}'
+
+  - name: create mount {{ ansible_ssh_user }} owner of {{ prireg_mount_root }} directories
+    become: true
+    file:
+      path: '{{ prireg_mount_root }}'
+      state: directory
+      recurse: true
+      owner: '{{ ansible_ssh_user }}'
+      group: '{{ ansible_ssh_group }}'
+
+  - name: registry start
+    shell: |
+      docker run -d --restart always \
+      --name {{ prireg_service_name }} \
+      --user $(id -u):$(id -g) \
+      -e REGISTRY_STORAGE_DELETE_ENABLED=true \
+      -p {{ prireg_publish_5000 }}:5000 \
+      -v {{ prireg_mount_root }}:/var/lib/registry \
+      -v /etc/localtime:/etc/localtime:ro \
+      {{ prireg_image }}

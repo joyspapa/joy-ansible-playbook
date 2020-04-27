@@ -1,0 +1,28 @@
+---
+
+- name: Ensure data directory - '{{ data_mount_root }}'
+  become: true
+  file: 
+    path: '{{ data_mount_root }}'
+    state: directory
+    recurse: true
+    owner: '{{ ansible_ssh_user }}'
+    group: '{{ ansible_ssh_group }}'
+    
+- name: Ensure logs directory - '{{ log_mount_root }}'
+  become: true
+  file:
+    path: '{{ log_mount_root }}'
+    state: directory
+    recurse: true
+    owner: '{{ ansible_ssh_user }}'
+    group: '{{ ansible_ssh_group }}'
+    
+- name: Ensure sw directory - '{{ sw_mount_root }}'
+  become: true
+  file:
+    path: '{{ sw_mount_root }}'
+    state: directory
+    recurse: true
+    owner: '{{ ansible_ssh_user }}'
+    group: '{{ ansible_ssh_group }}'

@@ -1,0 +1,6 @@
+---
+
+base_packages: ['epel-release']
+extra_packages: ['python-pip']
+monitor_tools: ['net-tools', 'nmon', 'htop', 'lsof', 'iperf3', 'nc', 'sysstat']
+misc_tools: ['vim', 'tree']

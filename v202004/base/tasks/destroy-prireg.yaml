@@ -1,0 +1,28 @@
+---
+
+- name: stop registry containger
+  command: docker stop {{ prireg_service_name }}
+  ignore_errors: true
+
+- name: destroy private registry service
+  command: docker rm {{ prireg_service_name }} 
+  ignore_errors: true
+
+- name: remove registry images
+  shell: docker rmi {{ prireg_image }}
+  ignore_errors: true
+  
+- name: remove alpine-openjdk images
+  shell: "docker rmi {{ prireg_alpine_tag }}"
+  ignore_errors: true
+  
+- name: destroy registry volume
+  become: true
+  file: 
+    path: "{{ prireg_mount_root }}"
+    state: absent
+
+- name: remove preload image directory
+  file:
+    path: '{{ prireg_image_dest }}'
+    state: absent

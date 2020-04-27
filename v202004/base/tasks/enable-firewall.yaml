@@ -1,0 +1,7 @@
+---
+  - name: start firewall and enable service
+    become: true
+    service:
+      name: firewalld
+      state: started
+      enabled: yes

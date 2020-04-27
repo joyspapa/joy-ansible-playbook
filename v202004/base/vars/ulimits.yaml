@@ -1,0 +1,7 @@
+---
+
+ulimits_entries:
+  - { user: "{{ ansible_user_id }}", type: 'soft', resource: 'nofile', value: '180000' }
+  - { user: "{{ ansible_user_id }}", type: 'hard', resource: 'nofile', value: '180000' }
+  - { user: "{{ ansible_user_id }}", type: 'soft', resource: 'nproc', value: '30000' }
+  - { user: "{{ ansible_user_id }}", type: 'hard', resource: 'nproc', value: '30000' }

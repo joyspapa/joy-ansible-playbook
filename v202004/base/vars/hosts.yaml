@@ -1,0 +1,5 @@
+---
+
+host_entries:
+  host: 'prireg'
+  ip: "{{ hostvars[groups['prireg'][0]].ansible_host }}"

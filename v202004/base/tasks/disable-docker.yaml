@@ -1,0 +1,78 @@
+---
+- name: docker stop containers
+  become: true
+  shell: docker ps -q | xargs docker stop
+  ignore_errors: true
+
+- name: docker remove containers
+  become: true
+  shell: docker ps -a -q | xargs docker rm
+  ignore_errors: true
+
+- name: docker remove images
+  become: true
+  shell: docker images -q | xargs docker rmi
+  ignore_errors: true
+
+- name: stop/disable docker
+  become: true
+  service:
+    name: docker
+    enabled: no
+    state: stopped
+  ignore_errors: true
+
+- name: remove  /etc/systemd/system/docker.service.d
+  become: true
+  file:
+    path: /etc/systemd/system/docker.service.d/docker.conf
+    state: absent
+  ignore_errors: true
+
+- name: remove /etc/systemd/system/docker.service.d directory
+  become: true
+  file: 
+    path: /etc/systemd/system/docker.service.d 
+    state: absent
+  ignore_errors: true
+
+- name: reload systemd
+  become: true
+  shell: systemctl daemon-reload
+  ignore_errors: true
+
+- name: remove a '{{ ansible_ssh_user }}' from the docker group
+  become: true
+  user:
+    name: '{{ ansible_ssh_user }}'
+    groups: ''
+  ignore_errors: true
+
+#- name: kill ssh connections to completely logout
+#  become: true
+#  shell: sleep 1; pkill -U {{ ansible_ssh_user }} sshd
+#  async: 3
+#  poll: 2
+
+- name: uninstall docker-engine
+  become: true
+  yum:
+    name: ['docker-ce', 'docker-ce-cli', 'containerd.io']
+    state: remove
+    autoremove: true
+  ignore_errors: true
+
+- name: remove images,containers,volumes,customized configurations
+  become: true
+  file: 
+    path: /var/lib/docker
+    state: absent
+  ignore_errors: true
+
+- name: remove install images
+  become: true
+  file:
+    path: '{{ docker_image_dest }}'
+    state: absent
+  ignore_errors: true
+

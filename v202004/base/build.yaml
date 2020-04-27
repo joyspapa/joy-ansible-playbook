@@ -1,0 +1,47 @@
+---
+
+- hosts: nodes
+  any_errors_fatal: true
+  vars_files:
+    - vars/ulimits.yaml
+    - vars/ntp.yaml
+    - vars/data-dir.yaml
+    - vars/docker.yaml
+    - vars/hosts.yaml
+    - vars/prireg.yaml
+    - vars/tools.yaml
+  tasks:
+    - import_tasks: tasks/increase-ulimits.yaml
+      tags: ['ulimits']
+
+    - import_tasks: tasks/enable-ntp.yaml
+      tags: ['ntp']
+
+    - import_tasks: tasks/disable-firewall.yaml
+      tags: ['firewall']
+
+    - import_tasks: tasks/create-data-dir.yaml
+      tags: ['data-dir']
+
+    - import_tasks: tasks/enable-docker.yaml
+      tags: ['docker']
+
+    - import_tasks: tasks/add-hosts.yaml
+      tags: ['hosts']
+
+    - import_tasks: tasks/install-tools.yaml
+      tags: ['tools']
+
+- hosts: prireg
+  any_errors_fatal: true
+  vars:
+    group_prefix: prod
+  vars_files:
+    - vars/data-dir.yaml
+    - vars/prireg.yaml
+  tasks:
+    - import_tasks: tasks/create-prireg.yaml
+      tags: ['prireg']
+      
+    - import_tasks: tasks/upload-images.yaml
+      tags: ['upload-images']

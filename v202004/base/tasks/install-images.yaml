@@ -1,0 +1,24 @@
+---
+  - name: load image
+    when: inventory_hostname == play_hosts[0]
+    become: true
+    shell: docker load < {{ temp_path }}/{{ item }}
+    with_items:
+      - alpine-openjdk8-image.tar
+      - ignite-image.tar
+      - kafka-image.tar
+      - registry-image.tar
+      - zookeeper-image.tar
+  
+  - name: push images
+    when: inventory_hostname == play_hosts[0]
+    become: true
+    shell: docker push prireg:5000/{{ item }}
+    with_items:
+      - alpine-openjdk8
+      - ignite
+      - kafka
+      - zookeeper
+
+
+

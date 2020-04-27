@@ -1,0 +1,21 @@
+---
+
+- hosts: nodes
+  any_errors_fatal: false
+  #  gather_facts: no
+  vars_files:
+    - vars/tools.yaml
+  tasks:
+    - name: Print the variables of regexp
+      debug: 
+        var: "{{ hostvars[item]['ansible_hostname']}}\t{{ hostvars[item]['ansible_hostname']}}"
+      with_items: "{{groups['nodes']}}"
+
+    - name: Print the variables of line
+      debug: 
+        var: "{{ hostvars[item]['ansible_env'].SSH_CONNECTION.split(' ')[2] }}\t{{ hostvars[item]['ansible_hostname']}}\t{{ hostvars[item]['ansible_hostname']}}"
+      with_items: "{{groups['nodes']}}"
+
+    - name: Print the variables of 'with_items'
+      debug: 
+        var: "{{groups['nodes']}}"

@@ -1,0 +1,60 @@
+---
+
+  - name: ensure {{ prireg_image_dest }}
+    file:
+      path: '{{ prireg_image_dest }}'
+      state: directory
+
+  - name: retrive preload docker image files
+    set_fact:
+      prireg_load_images: "{{ prireg_load_images }} + [ '{{ item | basename }}' ]"
+    with_fileglob:
+      - "{{ prireg_image_src }}/*.tar"
+
+  - name: copy image file
+    copy:
+      src: '{{ prireg_image_src }}/{{ item }}'
+      dest: '{{ prireg_image_dest }}'
+    with_items:    
+      - '{{ prireg_load_images }}'
+
+  - name: load image
+    shell: docker load < {{ prireg_image_dest }}/{{ item }}
+    with_items:
+      - '{{ prireg_load_images }}'
+
+# (check) prireg_mount_root 권한이 ansible_ssh_user 일 경우에는 'become: true' 부분을 뺀다.
+  - name: create mount {{ ansible_ssh_user }} owner of {{ prireg_mount_root }} directories
+    become: true
+    file:
+      path: '{{ prireg_mount_root }}'
+      state: directory
+      recurse: true
+      owner: '{{ ansible_ssh_user }}'
+      group: '{{ ansible_ssh_user }}'
+
+  - name: registry start
+    shell: |
+      docker run -d --restart always \
+      --name {{ prireg_service_name }} \
+      --user $(id -u):$(id -g) \
+      -e REGISTRY_STORAGE_DELETE_ENABLED=true \
+      -p {{ prireg_publish_5000 }}:5000 \
+      -v {{ prireg_mount_root }}:/var/lib/registry \
+      -v /etc/localtime:/etc/localtime:ro \
+      {{ prireg_image }}
+    
+  - name: push alpine-openjdk images to the registry
+    shell: docker push {{ prireg_alpine_tag }}
+
+# (check) update.sh 권한이 755 권한이 있으면 SKIP
+  - name: chmod 755 update.sh file to build and push docker images to prireg
+    shell: "chmod 755 {{ docker_builds_path }}/{{ item }}/update.sh"
+    with_items: "{{ docker_builds_products }}"
+
+  - name: build and push docker images to prireg
+    shell: "cd {{ docker_builds_path }}/{{ item }}/ && ./update.sh"
+    with_items: "{{ docker_builds_products }}"
+
+#  - name: remove alpine-openjdk images
+#    shell: docker rmi {{ prireg_alpine_image }}

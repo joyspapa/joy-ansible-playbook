@@ -1,0 +1,10 @@
+---
+
+- name: removes ulimit entries in /etc/security/limits.conf
+  become: true
+  lineinfile:
+    dest: /etc/security/limits.conf
+    regexp: "^{{ item.user }}"
+    state: absent
+  with_items:
+    - "{{ ulimits_entries }}"

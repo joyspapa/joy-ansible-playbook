@@ -1,0 +1,6 @@
+---
+
+- name: push images to prireg
+  shell: docker push {{ item }}
+  with_items:
+    - '{{ docker_builds_products }}'
